@@ -11,72 +11,56 @@ function handleSignup(event) {
   const userData = {
     name: nameInput.value,
     email: emailInput.value,
+    status: 'pending',
   };
 
-  // Send the user data to the server for processing (backend)
-  // You can use the Fetch API or Axios library to make a POST request to the "/api/signup" endpoint
-  // Example using Fetch API:
-  fetch('/api/signup', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(userData),
-  })
-    .then(response => response.json())
-    .then(data => {
-      // Handle the response from the server
-      // You can display a success message or redirect the user to another page
-      console.log(data);
-    })
-    .catch(error => {
-      // Handle any errors that occur during the request
-      console.error('Error:', error);
-    });
+  // Store user data in local storage
+  const users = JSON.parse(localStorage.getItem('users')) || [];
+  users.push(userData);
+  localStorage.setItem('users', JSON.stringify(users));
 
-  // Reset the form inputs
-  nameInput.value = '';
-  emailInput.value = '';
+  alert('Registration submitted for approval.');
+  signupForm.reset();
 }
 
 // Admin Page
 const userList = document.getElementById('user-list');
 
-// Fetch the list of pending user registrations from the server (backend)
-// You can use the Fetch API or Axios library to make a GET request to the "/api/admin/registrations" endpoint
-// Example using Fetch API:
-fetch('/api/admin/registrations')
-  .then(response => response.json())
-  .then(data => {
-    // Display the list of pending user registrations
-    data.forEach(user => {
+function displayPendingUsers() {
+  userList.innerHTML = '';
+
+  // Retrieve pending users from local storage
+  const users = JSON.parse(localStorage.getItem('users')) || [];
+
+  users.forEach(user => {
+    if (user.status === 'pending') {
       const listItem = document.createElement('li');
       listItem.textContent = `${user.name} - ${user.email}`;
       userList.appendChild(listItem);
-    });
-  })
-  .catch(error => {
-    // Handle any errors that occur during the request
-    console.error('Error:', error);
+    }
   });
+}
+
+// Display pending users when the page loads
+displayPendingUsers();
 
 // Super Admin Page
 const approvedUserList = document.getElementById('approved-user-list');
 
-// Fetch the list of approved users from the server (backend)
-// You can use the Fetch API or Axios library to make a GET request to the "/api/superadmin/approved-users" endpoint
-// Example using Fetch API:
-fetch('/api/superadmin/approved-users')
-  .then(response => response.json())
-  .then(data => {
-    // Display the list of approved users
-    data.forEach(user => {
+function displayApprovedUsers() {
+  approvedUserList.innerHTML = '';
+
+  // Retrieve approved users from local storage
+  const users = JSON.parse(localStorage.getItem('users')) || [];
+
+  users.forEach(user => {
+    if (user.status === 'approved') {
       const listItem = document.createElement('li');
       listItem.textContent = `${user.name} - ${user.email}`;
       approvedUserList.appendChild(listItem);
-    });
-  })
-  .catch(error => {
-    // Handle any errors that occur during the request
-    console.error('Error:', error);
+    }
   });
+}
+
+// Display approved users when the page loads
+displayApprovedUsers();
